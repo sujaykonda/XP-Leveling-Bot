@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/sujaykonda/XP-Leveling-Bot.git"
   },
+  "engine":{
+    "node": "12.0.0" 
+  },
   "author": "",
   "license": "ISC",
   "bugs": {
