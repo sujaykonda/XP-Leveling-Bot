@@ -8,6 +8,7 @@ const fs = require("fs");
 const http = require("http");
 const url = require("url");
 const express = require("express");
+const keepalive = require("express-glitch-keepalive");
 const app = express();
 
 //dictionaries for local things
@@ -77,7 +78,7 @@ function addXP(guildId, userId, amount) {
   xp[guildId][userId][0] += amount;
   var level = xp[guildId][userId][1];
   if (amount < 0) {
-    while (level * level * 100 >= xp[guildId][userId][0]) {
+    while (level * level * 100 > xp[guildId][userId][0]) {
       level -= 1;
     }
   } else {
@@ -124,7 +125,7 @@ Object.prototype.containsKey = function(checkkey) {
 // Website code
 console.log("Starting server");
 app.set("view engine", "pug");
-app.use(express.static("views"));
+app.use(keepalive);
 //ping
 app.get("/", (request, response) => {
   const guildId = request.url.slice(2);
@@ -175,7 +176,7 @@ app.get("/", (request, response) => {
       roles: guildRoles
     });
   } else {
-    response.send("That page does not exist");
+    response.send("That guild does not exist");
   }
 });
 app.listen(process.env.PORT);
@@ -257,8 +258,13 @@ client.on("voiceStateUpdate", (oldState, newState) => {
     streamers[newState.member.user.id] = [0, newState.channel];
   }
   if (oldState.streaming && !newState.streaming) {
-    xp[newState.guild.id][newState.member.user.id] +=
-      streamers[newState.member.user.id][0] * 5;
+    // REMOVE THIS PLSPl,s NO I FIX U SURE YEA QQQQQQQQQQQQQQQQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaAA
+    addXP(
+      newState.guild.id,
+      newState.member.user,
+      streamers[newState.member.user.id][0] * 5
+    );
+    addRoles(newState.guild, newState.member);
     delete streamers[newState.member.user.id];
   }
 });
@@ -384,8 +390,10 @@ client.on("message", async msg => {
         );
         break;
       case "invite":
-        msg.channel.send("https://discordapp.com/api/oauth2/authorize?client_id=691738645417164920&scope=bot&permissions=8");
-        break
+        msg.channel.send(
+          "https://discordapp.com/api/oauth2/authorize?client_id=691738645417164920&scope=bot&permissions=8"
+        );
+        break;
       //command that displays the rank card
       case "r":
       case "rank":
@@ -397,7 +405,11 @@ client.on("message", async msg => {
           var tarMember = guild.members.cache.array().find(mem => {
             return (
               mem.displayName.toLowerCase() === args[0].toLowerCase() ||
-              mem.user.username.toLowerCase() === args[0].toLowerCase()
+              mem.user.username.toLowerCase() === args[0].toLowerCase() ||
+              mem.displayName.toLowerCase() ===
+                args[0].toLowerCase().replace("_", " ") ||
+              mem.user.username.toLowerCase() ===
+                args[0].toLowerCase().replace("_", " ")
             );
           });
           if (tarMember == null) {
@@ -693,7 +705,12 @@ client.on("message", async msg => {
               var tarMember = guild.members.cache.array().find(mem => {
                 return (
                   mem.displayName.toLowerCase() === userString.toLowerCase() ||
-                  mem.user.username.toLowerCase() === userString.toLowerCase()
+                  mem.user.username.toLowerCase() ===
+                    userString.toLowerCase() ||
+                  mem.displayName.toLowerCase() ===
+                    args[0].toLowerCase().replace("_", " ") ||
+                  mem.user.username.toLowerCase() ===
+                    args[0].toLowerCase().replace("_", " ")
                 );
               });
               if (tarMember == null) {
@@ -725,14 +742,19 @@ client.on("message", async msg => {
               var tarMember = guild.members.cache.array().find(mem => {
                 return (
                   mem.displayName.toLowerCase() === userString.toLowerCase() ||
-                  mem.user.username.toLowerCase() === userString.toLowerCase()
+                  mem.user.username.toLowerCase() ===
+                    userString.toLowerCase() ||
+                  mem.displayName.toLowerCase() ===
+                    args[0].toLowerCase().replace("_", " ") ||
+                  mem.user.username.toLowerCase() ===
+                    args[0].toLowerCase().replace("_", " ")
                 );
               });
               if (tarMember == null) {
                 msg.channel.send("Invalid argument at arg " + i.toString());
                 return;
               }
-              if (change < 10000000000000 && change > -10000000000000) {
+              if (change < 10000000000000 && change > -100000) {
                 addXP(guild.id, tarMember.user.id, change);
                 addRoles(guild, tarMember);
               }
