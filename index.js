@@ -177,9 +177,6 @@ app.get("/", (request, response) => {
   }
 });
 app.listen(process.env.PORT);
-setInterval(() => {
-  http.get(webUrl);
-}, 280000);
 
 //when we are ready to run the bot
 client.on("ready", () => {
