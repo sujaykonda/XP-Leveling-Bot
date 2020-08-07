@@ -6,7 +6,6 @@ const token = process.env.TOKEN;
 const Canvas = require("canvas");
 const fs = require("fs");
 const express = require("express");
-const keepalive = require("express-glitch-keepalive");
 const app = express();
 
 //dictionaries for local things
@@ -123,7 +122,7 @@ Object.prototype.containsKey = function(checkkey) {
 // Website code
 console.log("Starting server");
 app.set("view engine", "pug");
-app.use(keepalive);
+app.use(express.static("public"));
 //ping
 app.get("/", (request, response) => {
   const guildId = request.url.slice(2);
